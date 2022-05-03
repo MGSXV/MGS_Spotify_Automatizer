@@ -6,3 +6,6 @@ The script copies up to 10k two weeks old tracks from parent folder contains mul
 
 # Requirements
   * Python 3.10.2
+  * Datetime lib
+  * requests lib
+  * bs4 lib (For web scraping)
