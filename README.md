@@ -8,4 +8,4 @@ The script copies up to 10k two weeks old tracks from parent folder contains mul
   * Python 3.10.2
   * Datetime lib
   * requests lib
-  * bs4 lib (For web scraping)
+  * base64 lib
