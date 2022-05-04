@@ -49,7 +49,7 @@ class SpotifyAuth(object):
 		access_token = data["access_token"]
 		expires_in = data["expires_in"]
 		now = datetime.datetime.now()
-		expires = now + expires_in
+		expires = now + datetime.timedelta(seconds=expires_in)
 		self.access_token = access_token
 		self.expire_date = expires
 		self.is_expired = expires < now
@@ -61,8 +61,8 @@ class SpotifyAuth(object):
 		now = datetime.datetime.now()
 		if expires < now:
 			self.perform_auth()
-			return self.get_access_token
+			return self.get_access_token()
 		elif token == None:
 			self.perform_auth()
-			return self.get_access_token
+			return self.get_access_token()
 		return token
