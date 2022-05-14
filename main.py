@@ -1,14 +1,14 @@
-from auth.auth import SpotifyAuth
-from app.test_playlist import Playlist
+from os import access
+from auth.auth import spotifyAuth
 
 def	main():
 	client_id = input("Enter your Client ID: ")
 	client_secret = input("Enter your Client Secret: ")
-	spotify = SpotifyAuth(client_id, client_secret)
-	access_token = spotify.get_access_token()
-	print(access_token)
-	playlists = Playlist(access_token)
-	print(playlists.get_user_playlists())
+	user_name = input("Enter your username: ")
+	redirect = input("Enter your redirect URI: ")
+	spotify = spotifyAuth(client_id, client_secret, redirect, user_name)
+	spotify_obj = spotify.perform_oauth()
+	spotify.get_playlists(spotify_obj)
 
 if __name__ == "__main__":
 	main()
