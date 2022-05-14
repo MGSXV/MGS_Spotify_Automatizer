@@ -1,68 +1,45 @@
-import base64
-import datetime
-import requests
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+import spotipy.util as util
+import os
+import json
+import time
 
-class SpotifyAuth(object):
-	access_token = None
-	expire_date = datetime.datetime.now()
-	is_expired = True
-	client_id = None
-	client_secret = None
-	token_url = "https://accounts.spotify.com/api/token"
+class spotifyAuth(object):
+    client_id = None
+    client_secret = None
+    redirect = None
+    user_name = None
+    scope = 'playlist-read-collaborative playlist-modify-public playlist-read-private playlist-modify-private'
+    def __init__(self, client_id, client_secret, redirect, user_name):
+        super().__init__()
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect = redirect
+        self.user_name = user_name
 
-	def __init__(self, client_id, client_secret):
-		super().__init__()
-		self.client_id = client_id
-		self.client_secret = client_secret
+    def get_access_token(self):
+        user_name = self.user_name
+        scope = self.scope
+        client_id = self.client_id
+        client_secret = self.client_secret
+        redirect = self.redirect
+        oauth_obj = spotipy.SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect, scope=scope)
+        token_dict = oauth_obj.get_access_token()
+        return token_dict['access_token']
 
-	def get_client_credentials(self):
-		"""
-        Returns a base64 encoded string
-        """
-		client_id = self.client_id
-		client_secret = self.client_secret
-		if client_id == None or client_secret == None:
-			raise Exception("Insert Client ID and Client Secret.")
-		client_credentials = f"{client_id}:{client_secret}"
-		client_credentials_base64 = base64.b64encode(client_credentials.encode())
-		return client_credentials_base64.decode()
+    def perform_oauth(self):
+        token = self.get_access_token()
+        spotify_obj = spotipy.Spotify(auth=token)
+        return (spotify_obj)
 
-	def get_token_headers(self):
-		client_credentials_base64 = self.get_client_credentials()
-		return {
-			"Authorization": f"Basic {client_credentials_base64}"
-		}
-
-	def get_token_data(self):
-		return {
-			"grant_type": "client_credentials"
-		}
-
-	def perform_auth(self):
-		token_url = self.token_url
-		token_data = self.get_token_data()
-		token_headers = self.get_token_headers()
-		request_auth = requests.post(token_url, token_data, headers=token_headers)
-		if request_auth.status_code not in range(200, 299):
-			raise Exception("Authentication Error!")
-		data = request_auth.json()
-		access_token = data["access_token"]
-		expires_in = data["expires_in"]
-		now = datetime.datetime.now()
-		expires = now + datetime.timedelta(seconds=expires_in)
-		self.access_token = access_token
-		self.expire_date = expires
-		self.is_expired = expires < now
-		return True
-
-	def get_access_token(self):
-		token = self.access_token
-		expires = self.expire_date
-		now = datetime.datetime.now()
-		if expires < now:
-			self.perform_auth()
-			return self.get_access_token()
-		elif token == None:
-			self.perform_auth()
-			return self.get_access_token()
-		return token
+    def get_playlists(self, spotify_obj: spotipy.Spotify):
+        limit = 50
+        offset = 0
+        user_name = self.user_name
+        playlists = spotify_obj.user_playlists(user_name, limit, offset)
+        while len(playlists["items"]) != 0:
+            for item in playlists["items"]:
+                print(item["name"].encode('utf-8'))
+            offset += limit
+            playlists = spotify_obj.user_playlists(user_name, limit, offset)
