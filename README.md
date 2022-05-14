@@ -9,3 +9,4 @@ The script copies up to 10k two weeks old tracks from parent folder contains mul
   * Datetime lib
   * requests lib
   * base64 lib
+  * spotipy
