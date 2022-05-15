@@ -18,18 +18,18 @@ class spotifyAuth(object):
         self.redirect = redirect
         self.user_name = user_name
 
-    def get_access_token(self):
+    def get_token(self):
         user_name = self.user_name
         scope = self.scope
         client_id = self.client_id
         client_secret = self.client_secret
         redirect = self.redirect
-        oauth_obj = spotipy.SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect, scope=scope)
+        oauth_obj = spotipy.SpotifyOAuth(client_id=client_id, client_secret=client_secret, redirect_uri=redirect, scope=scope, username=user_name)
         token_dict = oauth_obj.get_access_token()
         return token_dict['access_token']
 
     def perform_oauth(self):
-        token = self.get_access_token()
+        token = self.get_token()
         spotify_obj = spotipy.Spotify(auth=token)
         return (spotify_obj)
 
